@@ -43,4 +43,16 @@ class ParentNode(HTMLNode):
 
     def to_html(self):
         if not self.tag:
-            raise ValueError("Parent node must have a tag")
+            raise ValueError("ParentNode must have a tag")
+        if not self.children:
+            raise ValueError("ParentNode must have children")
+
+        concatenate_child_nodes = ""
+
+        for child in self.children:
+            child_html = child.to_html()
+            concatenate_child_nodes += child_html
+        return f"<{self.tag}{self.props_to_html()}>{concatenate_child_nodes}</{self.tag}>" 
+
+        
+        
