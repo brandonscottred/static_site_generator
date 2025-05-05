@@ -42,3 +42,9 @@ def text_node_to_html_node(text_node):
         return LeafNode("img", "", props)
     else:
         raise Exception("Unknown TextType")
+
+
+
+
+
+
