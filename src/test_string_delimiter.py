@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from string_delimiter import split_nodes_delimiter, split_nodes_image, split_nodes_link
+from string_delimiter import split_nodes_delimiter, split_nodes_image, split_nodes_link, markdown_to_blocks
 
 class TestSplitNodesDelimiter(unittest.TestCase):
     def test_split_with_code_delimiter(self):
@@ -62,6 +62,53 @@ class TestImagesLinksExtraction(unittest.TestCase):
                 TextNode(" for more info.", TextType.TEXT),                
             ],
             new_nodes
+        )
+
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_markdown_to_blocks_edge_cases(self):
+    # Test with multiple consecutive newlines and extra whitespace
+        md = """
+    
+First block with  **bold text**
+    
+    
+
+Second block with
+multiple lines
+and _italic_ text
+
+
+- List item 1
+- List item 2   
+    """
+    
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "First block with  **bold text**",
+                "Second block with\nmultiple lines\nand _italic_ text",
+                "- List item 1\n- List item 2"
+            ]
         )
 
 if __name__ == "__main__":
