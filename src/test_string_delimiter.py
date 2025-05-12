@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from string_delimiter import split_nodes_delimiter, split_nodes_image, split_nodes_link, markdown_to_blocks
+from string_delimiter import split_nodes_delimiter, split_nodes_image, split_nodes_link, markdown_to_blocks, BlockType, block_to_block_type
 
 class TestSplitNodesDelimiter(unittest.TestCase):
     def test_split_with_code_delimiter(self):
@@ -110,6 +110,30 @@ and _italic_ text
                 "- List item 1\n- List item 2"
             ]
         )
+
+class TestBlockTypes(unittest.TestCase):
+    
+    def test_paragraph(self):
+        block = "This is a simple paragraph with no special formatting."
+        self.assertEqual(block_to_block_type(block), BlockType.paragraph)
+        
+    def test_heading(self):
+        self.assertEqual(block_to_block_type("# Heading level 1"), BlockType.heading)
+        self.assertEqual(block_to_block_type("## Heading level 2"), BlockType.heading)
+        self.assertEqual(block_to_block_type("###### Heading level 6"), BlockType.heading)
+        
+        self.assertEqual(block_to_block_type("#Heading with no space"), BlockType.paragraph)
+        self.assertEqual(block_to_block_type("####### Too many #"), BlockType.paragraph)
+        
+    def test_code_block(self):
+        self.assertEqual(block_to_block_type("```\ncode goes here\n```"), BlockType.code)
+        self.assertEqual(block_to_block_type("```\nmulti-line\ncode\nblock\n```"), BlockType.code)
+        self.assertEqual(block_to_block_type("```only opening backticks"), BlockType.paragraph)
+        
+    def test_quote(self):
+        self.assertEqual(block_to_block_type(">This is a quote"), BlockType.quote)
+        self.assertEqual(block_to_block_type(">Line 1\n>Line 2\n>Line 3"), BlockType.quote)
+        self.assertEqual(block_to_block_type(">Line 1\nLine 2 not starting with >"), BlockType.paragraph)
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,3 +1,4 @@
+from enum import Enum
 from textnode import TextNode, TextType
 from extract_markdown_images_links import extract_markdown_images, extract_markdown_links
 
@@ -103,4 +104,41 @@ def markdown_to_blocks(markdown):
             non_empty_blocks.append(stripped_block)
     
     return non_empty_blocks
+
+class BlockType(Enum):
+    paragraph = "paragraph"
+    heading = "heading"
+    code = "code"
+    quote = "quote"
+    unordered_list = "unordered_list"
+    ordered_list = "ordered_list"
+
+def block_to_block_type(block):
+    lines = block.split('\n')
+
+    if block.startswith(('#', '##', '###', '####', '#####', '######')):
+        heading_prefix = block.split(' ')[0]
+        if 1 <= len(heading_prefix) <= 6 and all(char == '#' for char in heading_prefix):
+            return BlockType.heading
+    
+    if block.startswith('```') and block.endswith('```'):
+        return BlockType.code
+    
+    if all(line.startswith('>') for line in lines):
+        return BlockType.quote
+    
+    if all(line.startswith('- ') for line in lines):
+        return BlockType.unordered_list
+    
+    ordered_list = True
+    for i, line in enumerate(lines, 1):
+        expected_prefix = f"{i}. "
+        if not line.startswith(expected_prefix):
+            ordered_list = False
+            break
+    if ordered_list:
+        return BlockType.ordered_list
+    
+    return BlockType.paragraph
+    
 
